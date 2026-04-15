@@ -1,42 +1,52 @@
 # Project Structure: GearShare
 
-This document provides an overview of the directory structure and the purpose of each component in the GearShare project.
+This document defines the directory structure, architectural rules, and coding standards for the GearShare project. All development must adhere to these principles without exception.
 
-## Root Directory
-- `app/`: Contains the Next.js application logic and routes using the App Router.
-- `components/`: Houses reusable UI components categorized by function.
-- `db/`: Database configuration, schemas, and migration files (Drizzle ORM).
-- `lib/`: Shared utility functions, server actions, and validation schemas.
-- `public/`: Static assets like images and SVG icons.
-- `types/`: Global TypeScript type definitions.
-- `drizzle.config.ts`: Configuration for the Drizzle database ORM.
-- `next.config.ts`: Next.js framework configuration.
-- `package.json`: Project dependencies and scripts.
+## 1. Clean Code & Architecture Rules
+- **Server-First**: Default to Server Components. Use `'use client'` only at leaf nodes for interactivity.
+- **Service Pattern**: Business logic is FORBIDDEN in Server Actions or UI Components.
+    - All DB queries and complex logic must reside in `/lib/services`.
+    - Server Actions in `/lib/actions` act as orchestrators calling Services.
+- **Donut Pattern**: Use Static Layouts with React Suspense boundaries. Isolate session-dependent UI in Client Components ("The Hole") to prevent full-page dynamic rendering.
+- **Type Safety**: Explicit TypeScript interfaces for every function. No `any`.
 
----
+## 2. Folder & Responsibility Standards
 
-## Key Directories Breakdown
+### `db/`
+- `schemas/`: Pure table definitions.
+- `index.ts`: Database connection initialization.
+- `seed.ts`: Script for seeding the database.
+- `migrations/`: Automatically generated SQL migration files.
+
+### `lib/`
+- `validations/`: Zod schemas for all data entry points (Client & Server).
+- `services/`: The "Brain" (Queries, Price Calcs, Handshake Logic).
+- `actions/`: The "Bridge" (Calls services, handles `revalidatePath`, and `redirect`).
+
+### `components/`
+- `ui/`: Atomic, logic-less UI components (buttons, modals, etc.).
+- `forms/`: Client-side forms handling local state and validation.
+- `cards/`: UI components for displaying data in card formats.
+- `shared/`: Generic components used across multiple pages.
 
 ### `app/`
 - `(admin)/`: Routes for the admin dashboard and inventory management.
 - `(auth)/`: Authentication-related pages (login, register).
 - `(client)/`: Public-facing client routes.
 - `api/`: Backend API endpoints.
-- `globals.css`: Global styling for the application.
-- `layout.tsx`: Root layout component.
 
-### `components/`
-- `cards/`: UI components for displaying data in card formats.
-- `forms/`: Reusable form components and input fields.
-- `shared/`: Generic components used across multiple pages.
-- `ui/`: Base design system components (buttons, modals, etc.).
+## 3. Operational Rules
+- **Error Handling**: Every Service and Action must return a consistent Response Object:
+  `{ success: boolean, data: T, error: string }`.
+- **Data Mutation**: All mutations must be handled via Server Actions.
+- **User Flow**: "Renter-First" logic. Every user is a Renter by default. Admin status is a permanent state-change handled by a dedicated service.
 
-### `db/`
-- `index.ts`: Database connection initialization.
-- `seed.ts`: Script for seeding the database with initial data.
-- `migrations/`: Automatically generated SQL migration files.
-- `schemas/`: Definitions for database tables and relations.
+## 4. Feature Implementation Workflow
+When building any feature, the following sequence MUST be followed:
+1.  **Zod Schema**: Define the validation logic in `/lib/validations`.
+2.  **Service**: Implement the business logic and DB queries in `/lib/services`.
+3.  **Action**: Create the orchestrator in `/lib/actions`.
+4.  **UI**: Build the presentation layer and forms.
 
-### `lib/`
-- `actions/`: Next.js Server Actions for data mutation.
-- `validation/`: Zod schemas or other validation logic for forms and APIs.
+## 5. Implementation Pattern
+`[Component]` -> Calls `[Server Action]` -> Calls `[Service]` -> Queries `[DB]`
