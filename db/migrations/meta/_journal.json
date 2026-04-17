@@ -8,6 +8,20 @@
       "when": 1776146285137,
       "tag": "0000_lumpy_joshua_kane",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776419288416,
+      "tag": "0001_fine_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776419749273,
+      "tag": "0002_lucky_king_cobra",
+      "breakpoints": true
     }
   ]
 }

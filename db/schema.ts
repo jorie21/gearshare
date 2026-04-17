@@ -5,6 +5,8 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   image: text("image"),
+  password: text("password"),
+  role: text("role", { enum: ["renter", "lender", "admin"] }).default("renter").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

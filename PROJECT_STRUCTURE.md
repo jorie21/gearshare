@@ -31,7 +31,7 @@ This document defines the directory structure, architectural rules, and coding s
 
 ### `app/`
 - `(admin)/`: Routes for the admin dashboard and inventory management.
-- `(auth)/`: Authentication-related pages (login, register).
+- `(auth)/`: Authentication-related pages, split internally by purpose such as session flows and account onboarding.
 - `(client)/`: Public-facing client routes.
 - `api/`: Backend API endpoints.
 
@@ -39,7 +39,11 @@ This document defines the directory structure, architectural rules, and coding s
 - **Error Handling**: Every Service and Action must return a consistent Response Object:
   `{ success: boolean, data: T, error: string }`.
 - **Data Mutation**: All mutations must be handled via Server Actions.
-- **User Flow**: "Renter-First" logic. Every user is a Renter by default. Admin status is a permanent state-change handled by a dedicated service.
+- **User Flow**: "Renter-First" logic. Every account can rent by default, and the same account can also become a lender by creating items.
+- **Capability Model**: The current schema does not store a user `role` column. A user acts as:
+  - a renter when referenced by `bookings.renterId`
+  - a lender when referenced by `items.ownerId`
+  - an admin only through separate admin-specific logic, which is not yet modeled in the current schema
 
 ## 4. Feature Implementation Workflow
 When building any feature, the following sequence MUST be followed:
