@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { db, pool } from "./index";
 import { categories, users } from "./schema";
 

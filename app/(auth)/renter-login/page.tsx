@@ -1,19 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Lock, EyeOff, Eye, ArrowLeft } from "lucide-react";
+import { Mail, Lock, EyeOff, Eye, ArrowLeft, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Syne } from "next/font/google";
 import { GoogleIcon } from "@/public/icons/simple-icons-google";
 import { GithubIcon } from "@/public/icons/simple-icons-github";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/services/auth/hooks/use-auth-store";
 
 const syne = Syne({ subsets: ["latin"], weight: ["700"] });
 
 export default function RenterLoginPage() {
+  const router = useRouter();
+  const { login, signInWithProvider, isLoading, error, clearError } = useAuthStore();
+  
   const [showPasswordLogin, setShowPasswordLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    return () => clearError();
+  }, [clearError]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await login({ email, password }, () => {
+      router.push("/");
+      router.refresh();
+    });
+  };
+
+  const handleSocialLogin = (provider: "google" | "github") => {
+    signInWithProvider(provider);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
@@ -43,6 +67,12 @@ export default function RenterLoginPage() {
           </p>
         </div>
 
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-xl text-center">
+            {error}
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           {!showPasswordLogin ? (
             <motion.div
@@ -52,11 +82,19 @@ export default function RenterLoginPage() {
               exit={{ opacity: 0, x: 20 }}
               className="grid gap-3 py-4"
             >
-              <button className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-4 text-sm font-semibold transition-colors hover:bg-secondary active:scale-95">
+              <button
+                disabled={isLoading}
+                onClick={() => handleSocialLogin("google")}
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-4 text-sm font-semibold transition-colors hover:bg-secondary active:scale-95 disabled:opacity-50"
+              >
                 <GoogleIcon size={20} />
                 Continue with Google
               </button>
-              <button className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-4 text-sm font-semibold transition-colors hover:bg-secondary active:scale-95">
+              <button
+                disabled={isLoading}
+                onClick={() => handleSocialLogin("github")}
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-4 text-sm font-semibold transition-colors hover:bg-secondary active:scale-95 disabled:opacity-50"
+              >
                 <GithubIcon size={20} />
                 Continue with GitHub
               </button>
@@ -77,19 +115,22 @@ export default function RenterLoginPage() {
                   <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
                     className="h-12 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm transition-all focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
                   />
                 </div>
-                <Link
-                  href="/verify"
-                  className="flex h-12 w-full items-center justify-center rounded-full bg-primary font-bold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95"
+                <button
+                  disabled={true}
+                  className="flex h-12 w-full items-center justify-center rounded-full bg-primary font-bold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                 >
-                  Sign In with Email
-                </Link>
+                  Sign In with Email (Coming Soon)
+                </button>
               </div>
 
               <button
+                disabled={isLoading}
                 onClick={() => setShowPasswordLogin(true)}
                 className="text-center text-sm font-bold text-primary hover:underline mt-2"
               >
@@ -97,18 +138,22 @@ export default function RenterLoginPage() {
               </button>
             </motion.div>
           ) : (
-            <motion.div
+            <motion.form
               key="password-login"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               className="grid gap-4 py-4"
+              onSubmit={handleSubmit}
             >
               <div className="grid gap-2">
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
                     className="h-12 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm transition-all focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
                   />
@@ -117,6 +162,9 @@ export default function RenterLoginPage() {
                   <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     className="h-12 w-full rounded-full border border-border bg-background pl-11 pr-11 text-sm transition-all focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
                   />
@@ -152,18 +200,24 @@ export default function RenterLoginPage() {
                 </Link>
               </div>
 
-              <button className="h-12 w-full rounded-full bg-primary font-bold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95">
-                Sign In
+              <button
+                disabled={isLoading}
+                type="submit"
+                className="h-12 w-full flex items-center justify-center rounded-full bg-primary font-bold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+              >
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
               </button>
 
               <button
+                type="button"
+                disabled={isLoading}
                 onClick={() => setShowPasswordLogin(false)}
                 className="flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors mt-2"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Magic Link
               </button>
-            </motion.div>
+            </motion.form>
           )}
         </AnimatePresence>
 

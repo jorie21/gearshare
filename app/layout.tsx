@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AuthProvider } from "@/components/shared/auth-provider";
 
 const syne = localFont({
   src: "../public/fonts/Syne-Variable.ttf",
@@ -29,7 +30,9 @@ export default function RootLayout({
       lang="en"
       className={`${syne.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-body">{children}</body>
+      <body className="min-h-full flex flex-col font-body">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

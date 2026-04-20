@@ -2,10 +2,16 @@
 
 import Link from "next/link";
 import { Syne } from "next/font/google";
+import { useSession } from "next-auth/react";
+import { logout } from "@/services/auth/actions/auth.actions";
+import { LogOut, User, LayoutDashboard } from "lucide-react";
 
 const syne = Syne({ subsets: ["latin"], weight: ["700"] });
 
 export function TopBar() {
+  const { data: session, status } = useSession();
+  const isLoading = status === "loading";
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -22,25 +28,55 @@ export function TopBar() {
           <Link href="/how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             How it Works
           </Link>
-          <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            About
-          </Link>
         </div>
 
         <div className="flex items-center gap-4">
-          <Link 
-            href="/renter-login"
-            className="hidden sm:inline-flex text-sm font-medium text-primary hover:underline underline-offset-4"
-          >
-            Sign In
-          </Link>
+          {isLoading ? (
+            <div className="h-8 w-20 animate-pulse rounded-full bg-muted" />
+          ) : session ? (
+            <div className="flex items-center gap-4">
+              {(session.user.role === "admin" || session.user.role === "lender") && (
+                <Link
+                  href="/dashboard"
+                  className="hidden md:flex items-center gap-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                >
+                  <LayoutDashboard size={18} />
+                  Dashboard
+                </Link>
+              )}
+              
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card">
+                <User size={16} className="text-muted-foreground" />
+                <span className="text-xs font-medium max-w-[100px] truncate">
+                  {session.user.name || session.user.email}
+                </span>
+              </div>
 
-          <Link 
-            href="/lender-signup" 
-            className="inline-flex h-10 items-center justify-center rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:scale-105 active:scale-95"
-          >
-            List Your Gear
-          </Link>
+              <button
+                onClick={() => logout()}
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link 
+                href="/renter-login"
+                className="hidden sm:inline-flex text-sm font-medium text-primary hover:underline underline-offset-4"
+              >
+                Sign In
+              </Link>
+
+              <Link 
+                href="/lender-signup" 
+                className="inline-flex h-10 items-center justify-center rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:scale-105 active:scale-95"
+              >
+                List Your Gear
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
