@@ -34,7 +34,7 @@ export async function login(values: LoginInput) {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/",
+      redirect: false,
     });
     return { success: true };
   } catch (error) {
@@ -68,7 +68,7 @@ export async function register(values: SignUpInput) {
     await signIn("credentials", {
       email: validatedFields.data.email,
       password: validatedFields.data.password,
-      redirectTo: "/",
+      redirect: false,
     });
     return { success: true };
   } catch (error) {
@@ -81,10 +81,6 @@ export async function register(values: SignUpInput) {
 
 export async function logout() {
   await signOut({ redirectTo: "/" });
-}
-
-export async function signInWithProvider(provider: "google" | "github") {
-  await signIn(provider, { redirectTo: "/" });
 }
 
 export async function requestEmailCode(email: string) {
@@ -176,7 +172,7 @@ export async function completePasswordSetup(values: PasswordSetupInput) {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/",
+      redirect: false,
     });
     return { success: true };
   } catch (error) {

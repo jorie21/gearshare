@@ -2,12 +2,11 @@ import { create } from "zustand";
 import { 
   login, 
   register, 
-  logout, 
-  signInWithProvider, 
   requestEmailCode, 
   verifyEmailCode, 
   completePasswordSetup 
 } from "../actions/auth.actions";
+import { signIn, signOut } from "next-auth/react";
 import { LoginInput, SignUpInput, VerifyCodeInput, PasswordSetupInput } from "../validations/auth";
 
 type AuthStep = "email" | "code" | "password";
@@ -78,7 +77,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
-      await logout();
+      await signOut({ callbackUrl: "/" });
     } finally {
       set({ isLoading: false });
     }
@@ -87,7 +86,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signInWithProvider: async (provider) => {
     set({ isLoading: true, error: null });
     try {
-      await signInWithProvider(provider);
+      await signIn(provider, { callbackUrl: "/" });
     } catch (err) {
       set({ error: `Failed to sign in with ${provider}`, isLoading: false });
     }

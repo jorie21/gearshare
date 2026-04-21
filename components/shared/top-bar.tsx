@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { Syne } from "next/font/google";
 import { useSession } from "next-auth/react";
-import { logout } from "@/services/auth/actions/auth.actions";
 import { LogOut, User, LayoutDashboard } from "lucide-react";
+import { Session } from "next-auth";
+import { useAuthStore } from "@/services/auth/hooks/use-auth-store";
 
 const syne = Syne({ subsets: ["latin"], weight: ["700"] });
 
-export function TopBar() {
-  const { data: session, status } = useSession();
-  const isLoading = status === "loading";
+export function TopBar({ initialSession }: { initialSession?: Session | null }) {
+  const { data: sessionData, status } = useSession();
+  const { logout } = useAuthStore();
+  const session = sessionData || initialSession;
+  const isLoading = status === "loading" && !initialSession;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">

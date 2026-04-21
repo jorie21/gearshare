@@ -5,13 +5,16 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
+
+  // 1. Allow API Auth routes to pass through immediately
+  if (nextUrl.pathname.startsWith("/api/auth")) {
+    return;
+  }
+
   const isLoggedIn = !!req.auth;
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
   const isAuthRoute = ["/renter-login", "/lender-signup", "/verify", "/setup-password"].includes(nextUrl.pathname);
   const isAdminRoute = nextUrl.pathname.startsWith("/dashboard") || nextUrl.pathname.startsWith("/inventory");
-
-  if (isApiAuthRoute) return;
 
   if (isAuthRoute) {
     if (isLoggedIn) {
