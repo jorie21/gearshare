@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, integer, decimal, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, integer, decimal, primaryKey, boolean } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "next-auth/adapters";
 
 export const users = pgTable("users", {
@@ -56,6 +56,20 @@ export const verificationTokens = pgTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
+
+export const lenderProfiles = pgTable("lender_profiles", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  storeName: text("store_name").notNull(),
+  bio: text("bio"),
+  phoneNumber: text("phone_number").notNull(),
+  pickupAddress: text("pickup_address").notNull(),
+  city: text("city").notNull(),
+  isVerified: boolean("is_verified").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 
 export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),

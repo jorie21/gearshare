@@ -15,10 +15,13 @@ export const authConfig = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      console.log("JWT callback - initial token:", token);
+      console.log("JWT callback - user:", user);
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
+      console.log("JWT callback - final token:", token);
       return token;
     },
     async session({ session, token }) {
@@ -28,11 +31,18 @@ export const authConfig = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   session: {
     strategy: "jwt",
   },
   pages: {
-    signIn: "/renter-login",
-  },
+    signIn: "/renter-login"
+  }
 } satisfies NextAuthConfig;

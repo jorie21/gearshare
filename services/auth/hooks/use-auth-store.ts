@@ -19,15 +19,15 @@ interface AuthState {
   tempToken: string | null;
   
   // Actions
-  login: (values: LoginInput, callback?: () => void) => Promise<void>;
-  register: (values: SignUpInput, callback?: () => void) => Promise<void>;
+  login: (values: LoginInput, callback?: (role: string) => void) => Promise<void>;
+  register: (values: SignUpInput, callback?: (role: string) => void) => Promise<void>;
   logout: () => Promise<void>;
   signInWithProvider: (provider: "google" | "github") => Promise<void>;
   
   // Email Flow Actions
   requestEmailCode: (email: string) => Promise<void>;
   verifyEmailCode: (code: string) => Promise<void>;
-  setupPassword: (password: string, callback?: () => void) => Promise<void>;
+  setupPassword: (password: string, callback?: (role: string) => void) => Promise<void>;
   
   // Helpers
   setStep: (step: AuthStep) => void;
@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const result = await login(values);
       if (result.success) {
-        if (callback) callback();
+        if (callback && result.data) callback(result.data.role);
       } else {
         set({ error: result.error, isLoading: false });
       }
@@ -65,7 +65,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const result = await register(values);
       if (result.success) {
-        if (callback) callback();
+        if (callback && result.data) callback(result.data.role);
       } else {
         set({ error: result.error, isLoading: false });
       }
@@ -136,7 +136,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
 
       if (result.success) {
-        if (callback) callback();
+        if (callback && result.data) callback(result.data.role);
         get().resetFlow();
       } else {
         set({ error: result.error, isLoading: false });

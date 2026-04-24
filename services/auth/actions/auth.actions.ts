@@ -36,7 +36,13 @@ export async function login(values: LoginInput) {
       password,
       redirect: false,
     });
-    return { success: true };
+
+    const userResult = await UserService.findByEmail(email);
+    if (!userResult.success || !userResult.data) {
+      return { success: false, error: "User not found" };
+    }
+
+    return { success: true, data: userResult.data };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -70,7 +76,7 @@ export async function register(values: SignUpInput) {
       password: validatedFields.data.password,
       redirect: false,
     });
-    return { success: true };
+    return { success: true, data: result.data };
   } catch (error) {
     if (error instanceof AuthError) {
       return { success: false, error: "Failed to sign in after registration" };
@@ -130,6 +136,7 @@ export async function completePasswordSetup(values: PasswordSetupInput) {
   if (!validatedFields.success) {
     return { success: false, error: "Invalid fields" };
   }
+  
 
   const { email, token, password } = validatedFields.data;
 
@@ -145,23 +152,28 @@ export async function completePasswordSetup(values: PasswordSetupInput) {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  let finalUser;
+
   if (user) {
     // Update existing user
-    await db
+    const [updatedUser] = await db
       .update(users)
       .set({ 
         password: hashedPassword,
         emailVerified: new Date(),
       })
-      .where(eq(users.id, user.id));
+      .where(eq(users.id, user.id))
+      .returning();
+    finalUser = updatedUser;
   } else {
     // Create new user (if they signed up via email for the first time)
-    await db.insert(users).values({
+    const [newUser] = await db.insert(users).values({
       email: email.toLowerCase(),
       password: hashedPassword,
       emailVerified: new Date(),
       role: "renter",
-    });
+    }).returning();
+    finalUser = newUser;
   }
 
   // 3. Cleanup token
@@ -174,7 +186,7 @@ export async function completePasswordSetup(values: PasswordSetupInput) {
       password,
       redirect: false,
     });
-    return { success: true };
+    return { success: true, data: finalUser };
   } catch (error) {
     if (error instanceof AuthError) {
       return { success: false, error: "Password set but failed to sign in automatically." };

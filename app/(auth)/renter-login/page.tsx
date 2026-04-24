@@ -45,8 +45,12 @@ export default function RenterLoginPage() {
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login({ email, password }, () => {
-      router.push("/");
+    await login({ email, password }, (role) => {
+      if (role === "lender") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
       router.refresh();
     });
   };
@@ -63,8 +67,12 @@ export default function RenterLoginPage() {
 
   const handleSetupPasswordStep = async (e: React.FormEvent) => {
     e.preventDefault();
-    await setupPassword(password, () => {
-      router.push("/");
+    await setupPassword(password, (role) => {
+      if (role === "lender") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
       router.refresh();
     });
   };

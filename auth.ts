@@ -40,3 +40,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
 });
+
+export async function safeAuth() {
+  try {
+    return await auth();
+  } catch (error) {
+    console.error("Failed to load auth session", error);
+    return null;
+  }
+}
