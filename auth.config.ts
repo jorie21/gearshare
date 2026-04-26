@@ -14,14 +14,17 @@ export const authConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      console.log("JWT callback - initial token:", token);
-      console.log("JWT callback - user:", user);
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
-      console.log("JWT callback - final token:", token);
+      
+      // Handle session updates (e.g., when a renter becomes a lender)
+      if (trigger === "update" && session?.role) {
+        token.role = session.role;
+      }
+      
       return token;
     },
     async session({ session, token }) {

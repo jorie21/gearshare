@@ -7,7 +7,7 @@ import {
   completePasswordSetup 
 } from "../actions/auth.actions";
 import { signIn, signOut } from "next-auth/react";
-import { LoginInput, SignUpInput, VerifyCodeInput, PasswordSetupInput } from "../validations/auth";
+import { LoginInput, SignUpInput } from "../validations/auth";
 
 type AuthStep = "email" | "code" | "password";
 
@@ -22,7 +22,7 @@ interface AuthState {
   login: (values: LoginInput, callback?: (role: string) => void) => Promise<void>;
   register: (values: SignUpInput, callback?: (role: string) => void) => Promise<void>;
   logout: () => Promise<void>;
-  signInWithProvider: (provider: "google" | "github") => Promise<void>;
+  signInWithProvider: (provider: "google" | "github", callbackUrl?: string) => Promise<void>;
   
   // Email Flow Actions
   requestEmailCode: (email: string) => Promise<void>;
@@ -53,9 +53,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (result.success) {
         if (callback && result.data) callback(result.data.role);
       } else {
-        set({ error: result.error, isLoading: false });
+        set({ error: result.error || "An error occurred", isLoading: false });
       }
-    } catch (err) {
+    } catch {
       set({ error: "An unexpected error occurred during login", isLoading: false });
     }
   },
@@ -67,9 +67,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (result.success) {
         if (callback && result.data) callback(result.data.role);
       } else {
-        set({ error: result.error, isLoading: false });
+        set({ error: result.error || "An error occurred", isLoading: false });
       }
-    } catch (err) {
+    } catch {
       set({ error: "An unexpected error occurred during registration", isLoading: false });
     }
   },
@@ -83,11 +83,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signInWithProvider: async (provider) => {
+  signInWithProvider: async (provider, callbackUrl) => {
     set({ isLoading: true, error: null });
     try {
-      await signIn(provider, { callbackUrl: "/" });
-    } catch (err) {
+      await signIn(provider, { callbackUrl: callbackUrl || "/", redirect: true });
+    } catch {
       set({ error: `Failed to sign in with ${provider}`, isLoading: false });
     }
   },
@@ -99,9 +99,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (result.success) {
         set({ step: "code", tempEmail: email, isLoading: false });
       } else {
-        set({ error: result.error, isLoading: false });
+        set({ error: result.error || "An error occurred", isLoading: false });
       }
-    } catch (err) {
+    } catch {
       set({ error: "Failed to send code", isLoading: false });
     }
   },
@@ -116,9 +116,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (result.success) {
         set({ step: "password", tempToken: code, isLoading: false });
       } else {
-        set({ error: result.error, isLoading: false });
+        set({ error: result.error || "An error occurred", isLoading: false });
       }
-    } catch (err) {
+    } catch {
       set({ error: "Verification failed", isLoading: false });
     }
   },
@@ -139,9 +139,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (callback && result.data) callback(result.data.role);
         get().resetFlow();
       } else {
-        set({ error: result.error, isLoading: false });
+        set({ error: result.error || "An error occurred", isLoading: false });
       }
-    } catch (err) {
+    } catch {
       set({ error: "Failed to set password", isLoading: false });
     }
   },

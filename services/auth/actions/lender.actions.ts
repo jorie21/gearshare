@@ -2,7 +2,7 @@
 
 import { safeAuth } from "@/auth";
 import { lenderProfileSchema, LenderProfileInput } from "../validations/lender";
-import { LenderService } from "../services/lender.service";
+import { LenderService } from "../query/lender.service";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 

@@ -40,7 +40,7 @@ export default function LenderSignupPage() {
   };
 
   const handleSocialLogin = (provider: "google" | "github") => {
-    signInWithProvider(provider);
+    signInWithProvider(provider, "/lender-application");
   };
 
   return (

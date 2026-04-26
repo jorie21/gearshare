@@ -2,13 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { MapPin, Store, Phone, Info, ShieldCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createLenderAccount } from "@/lib/actions/lender.actions";
-import { LenderProfileInput } from "@/lib/validations/lender";
+import { createLenderAccount } from "@/services/auth/actions/lender.actions";
+import { LenderProfileInput } from "@/services/auth/validations/lender";
 
 export function LenderSetupForm() {
   const router = useRouter();
+  const { update } = useSession();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +35,9 @@ export function LenderSetupForm() {
       const result = await createLenderAccount(formData);
       
       if (result.success) {
+        // Update the session to reflect the new lender role
+        await update({ role: "lender" });
+        
         router.push("/dashboard");
         router.refresh();
       } else {
