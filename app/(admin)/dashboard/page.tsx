@@ -7,7 +7,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Search
 } from 'lucide-react'
 
 const stats = [
@@ -55,18 +56,29 @@ const recentBookings = [
 export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Lender Dashboard</h1>
           <p className="text-muted-foreground mt-1">Welcome back, Alex. Here&apos;s what&apos;s happening with your gear today.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-xl text-sm font-medium transition-colors border border-border">
-            Download Report
-          </button>
-          <button className="px-4 py-2 bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl text-sm font-bold transition-all shadow-lg shadow-accent/20">
-            + Add New Gear
-          </button>
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 bg-muted/50 border border-border px-4 py-2 rounded-xl w-full max-w-md focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <Search size={18} className="text-muted-foreground" />
+            <input 
+              type="text" 
+              placeholder="Search gear, bookings, or renters..." 
+              className="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-xl text-sm font-medium transition-colors border border-border">
+              Download Report
+            </button>
+            <button className="px-4 py-2 bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl text-sm font-bold transition-all shadow-lg shadow-accent/20">
+              + Add New Gear
+            </button>
+          </div>
         </div>
       </div>
 

@@ -12,10 +12,14 @@ import {
   MessageSquare,
   ShieldCheck,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Moon,
+  Sun,
+  Bell
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -28,6 +32,13 @@ const navigation = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <aside 
@@ -111,7 +122,27 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer / Logout */}
-      <div className="p-4 border-t border-border mt-auto">
+      <div className="p-4 border-t border-border mt-auto space-y-2">
+        <div className={cn(
+          "flex items-center gap-2",
+          isCollapsed ? "flex-col" : "justify-between px-2 mb-2"
+        )}>
+          {/* Notifications */}
+          <button className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground relative border border-transparent hover:border-border">
+            <Bell size={20} />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border-2 border-card" />
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground border border-transparent hover:border-border"
+            aria-label="Toggle theme"
+          >
+            {mounted && (theme === "dark" ? <Sun size={20} /> : <Moon size={20} />)}
+          </button>
+        </div>
+
         <button className={cn(
           "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-destructive hover:bg-destructive/10 transition-all font-medium",
           isCollapsed && "justify-center"

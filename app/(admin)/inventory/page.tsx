@@ -12,28 +12,31 @@ const inventory = [
 export default function InventoryPage() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gear Inventory</h1>
           <p className="text-muted-foreground mt-1">Manage and track all your rental equipment in one place.</p>
         </div>
-        <button className="flex items-center justify-center gap-2 px-6 py-3 bg-accent hover:bg-accent/90 text-accent-foreground rounded-2xl font-bold transition-all shadow-lg shadow-accent/20">
-          <Plus size={20} />
-          Add New Item
-        </button>
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 bg-muted/50 border border-border px-4 py-2 rounded-xl w-full max-w-md focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <Search size={18} className="text-muted-foreground" />
+            <input 
+              type="text" 
+              placeholder="Search gear, categories, or status..." 
+              className="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
+            />
+          </div>
+          <button className="flex items-center justify-center gap-2 px-6 py-3 bg-accent hover:bg-accent/90 text-accent-foreground rounded-2xl font-bold transition-all shadow-lg shadow-accent/20">
+            <Plus size={20} />
+            Add New Item
+          </button>
+        </div>
       </div>
 
       <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
         {/* Table Filters */}
-        <div className="p-4 border-b border-border flex flex-col sm:flex-row items-center gap-4">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search by name, category, or ID..." 
-              className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-          </div>
+        <div className="p-4 border-b border-border flex flex-col sm:flex-row items-center justify-end gap-4">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button className="flex items-center justify-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 rounded-xl text-sm font-medium transition-colors border border-border flex-1 sm:flex-none">
               <Filter size={16} />
